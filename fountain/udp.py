@@ -2,16 +2,17 @@
 import socket
 import argparse
 from pprint import pprint as pp
-from lt import *
+from ltcode import *
 from struct import *
 
-BUF_SIZE=512
+BUF_SIZE=512*2*2
 
 def fountain_client(ns):
   s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
   bucket = lt_decode(ns.length, 504)
   
-  s.sendto(b'', (ns.host, ns.port))
+ # s.sendto(b'', (ns.host, ns.port))
+  s.sendto(b'', ('127.0.0.1', 8000))
   i = 0
   while bucket.unknown_blocks > 0:
     i += 1
@@ -29,8 +30,9 @@ def fountain_client(ns):
 
 def fountain_server(ns):
   s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-  s.bind((ns.host, ns.port))
 
+#  s.bind((ns.host, ns.port))
+  s.bind(('127.0.0.1', 8000))
   with open(ns.filename, 'rb') as f:
     buf = f.read()
 

@@ -12,7 +12,7 @@ def lt_encode(source, blocksize=1024):
   N = int(ceil(n/blocksize))
   #print(n)
   #print(N)
-  s = soliton(N, prng.randint(0, 2 ** 32 - 1))
+  s = soliton(int(N/10), prng.randint(0, 2 ** 32 - 1))
   while 1:
     d = int(random.random()*2 + 1)#next(s)
     #print("degree :{:d}\n ".format(d))
@@ -49,11 +49,11 @@ class node_original:
     self.i         = i
     self.edges     = set() # Set of droplets associated with this block
     self.blocksize = blocksize
-
+  #  sys.stdout.write("------------------blocksize: {:d}--------\t".format(blocksize));
     offset         = i*blocksize
     end            = offset + blocksize if offset + blocksize <= parent.n else parent.n
     self.data      = memoryview(original)[i*blocksize:(i+1)*blocksize]
-  
+   # blocksize
   def pop_edges(self):
     while len(self.edges):
       e = self.edges.pop()
@@ -120,7 +120,7 @@ class lt_decode:
     self.unknown_blocks = self.N
     self.original_nodes = []
     #self.droplets  = []
-
+    print(" {:d}   ".format(blocksize))
     for i in range(self.N):
       self.original_nodes.append(node_original(self, self.original, i, blocksize))
 
@@ -141,6 +141,9 @@ if __name__ == '__main__':
 
   fountain = lt_encode(buf,1024*16*2)
   bucket   = lt_decode(len(buf),1024*16*2)
+  # fountain = lt_encode(buf,504*2)
+  # bucket   = lt_decode(len(buf),504*2)
+
 
   i = 0
   while bucket.unknown_blocks > 0:
