@@ -12,9 +12,11 @@ def lt_encode(source, blocksize=1024):
   N = int(ceil(n/blocksize))
   #print(n)
   #print(N)
-  s = soliton(int(N/10), prng.randint(0, 2 ** 32 - 1))
+  s = soliton(int(N), prng.randint(0, 2 ** 32 - 1))
   while 1:
-    d = int(random.random()*2 + 1)#next(s)
+    d = next(s)
+    #d = int(random.random()*4 + 1)#next(s)
+
     #print("degree :{:d}\n ".format(d))
     seed = prng.randint(0, 2 ** 32 - 1)
     rng  = random.Random(seed)
@@ -136,13 +138,15 @@ if __name__ == '__main__':
   #from pprint import pprint as pp
   #with open('hello.bin', 'rb') as f:
  # with open('testfile.bin', 'rb') as f:
-  with open('sample.txt', 'rb') as f:
+  with open('sample50M.txt', 'rb') as f:
     buf = f.read()
 
-  fountain = lt_encode(buf,1024*16*2)
-  bucket   = lt_decode(len(buf),1024*16*2)
-  # fountain = lt_encode(buf,504*2)
-  # bucket   = lt_decode(len(buf),504*2)
+  sys.setrecursionlimit(1000000)
+
+  #fountain = lt_encode(buf,1024)
+  #bucket   = lt_decode(len(buf),1024)
+  fountain = lt_encode(buf,504)
+  bucket   = lt_decode(len(buf),504)
 
 
   i = 0
@@ -152,5 +156,5 @@ if __name__ == '__main__':
     print("Caught {:d} droplets. There are {:d} unknown blocks.".format(i, bucket.unknown_blocks),
           end='\r')
 
-  assert(bucket.original == buf)
+#  assert(bucket.original == buf)
   print("Decoded message of {:d} blocks using {:d} droplets ({:f}%).".format(bucket.N, i, (i*100)/bucket.N))
