@@ -89,7 +89,7 @@ def fountain_client(ns):
    #  degree, seed, data = unpack('!II504s', b)
    #  droplets += 1
    #  bucket.catch({'degree': degree, 'seed': seed, 'data': data})
-    print("Caught {:d} droplets. There are {:d} unknown blocks.".format(i, bucket.unknown_blocks),
+    print("Caught {:d} droplets. There are {:d} unknown blocks.".format(droplets, bucket.unknown_blocks),
           end='\r')
    #  lock.release()
 
@@ -112,10 +112,17 @@ def fountain_client(ns):
     o = memoryview(bucket.original)[:ns.length]
     f.write(o)
 
-def over_transmiter(s):
+def over_transmiter(s, fountain, ns):
   #self.s = s
-  print("asdfsd")
-  b, a = s.recvfrom(BUF_SIZE)
+  while True:
+    print("Starting fountain...")
+
+    while 1:
+      d = next(fountain)
+      s.sendto(pack('!II504s', d['degree'], d['seed'], d['data']), (ns.host, ns.port))
+
+
+
 #  sys.exit(0)
 
 def fountain_server(ns):
@@ -131,31 +138,38 @@ def fountain_server(ns):
 
   fountain = lt_encode(buf, 504)
   
+  ns.host = '192.168.5.2'
+  ns.port = 8000
 
-  while True:
-   # b, a = s.recvfrom(BUF_SIZE)
-    #print("Server received {} bytes from {}:{}".format(len(b), a[0], a[1]))
-    print("Starting fountain...")
-  #  s.setblocking(0)l
-    # t1 = Thread(target=over_transmiter, args=(s,))
-    # t1.start()
-    while 1:
-      d = next(fountain)
-    #  s.sendto(pack('!II504s', d['degree'], d['seed'], d['data']), ("127.0.0.1",8000))
-      # d = next(fountain)
-     # s.sendto(pack('!II504s', d['degree'], d['seed'], d['data']), ("127.0.0.1",8000))
+  t0 = Thread(target=over_transmiter, args=(s,fountain,ns))
+  t0.start()
 
-   #   s.sendto(pack('!II504s', d['degree'], d['seed'], d['data']), ("192.168.8.177",8000))
-      s.sendto(pack('!II504s', d['degree'], d['seed'], d['data']), ("192.168.5.2",8000))
-      d = next(fountain)
+  t0.join()
 
-      s.sendto(pack('!II504s', d['degree'], d['seed'], d['data']), ("192.168.4.2",8000))
+  # while True:
+  #  # b, a = s.recvfrom(BUF_SIZE)
+  #   #print("Server received {} bytes from {}:{}".format(len(b), a[0], a[1]))
+  #   print("Starting fountain...")
+  # #  s.setblocking(0)l
+  #   # t1 = Thread(target=over_transmiter, args=(s,))
+  #   # t1.start()
+  #   while 1:
+  #     d = next(fountain)
+  #   #  s.sendto(pack('!II504s', d['degree'], d['seed'], d['data']), ("127.0.0.1",8000))
+  #     # d = next(fountain)
+  #    # s.sendto(pack('!II504s', d['degree'], d['seed'], d['data']), ("127.0.0.1",8000))
 
-      d = next(fountain)   
-      s.sendto(pack('!II504s', d['degree'], d['seed'], d['data']), ("192.168.2.2",8000))
+  #  #   s.sendto(pack('!II504s', d['degree'], d['seed'], d['data']), ("192.168.8.177",8000))
+  #     s.sendto(pack('!II504s', d['degree'], d['seed'], d['data']), ("192.168.5.2",8000))
+  #     d = next(fountain)
 
-      d = next(fountain)   
-      s.sendto(pack('!II504s', d['degree'], d['seed'], d['data']), ("192.168.3.2",8000))
+  #     s.sendto(pack('!II504s', d['degree'], d['seed'], d['data']), ("192.168.4.2",8000))
+
+  #     d = next(fountain)   
+  #     s.sendto(pack('!II504s', d['degree'], d['seed'], d['data']), ("192.168.2.2",8000))
+
+  #     d = next(fountain)   
+  #     s.sendto(pack('!II504s', d['degree'], d['seed'], d['data']), ("192.168.3.2",8000))
   
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()
